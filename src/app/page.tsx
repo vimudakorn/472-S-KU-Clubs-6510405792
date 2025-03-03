@@ -8,10 +8,11 @@ import ClubBox from "@/components/ClubBox";
 import { useRouter } from "next/router";
 import Loading from "@/components/Loading";
 import { useState } from "react";
+import ClubBoxSkeleton from "@/components/ClubBoxSkeleton";
+import clubs from "@/app/_mocks_/data";
 
 export default function Home() {
-  const [isLoading, setIsLoading] = useState(true);
-
+  const [isLoading, setIsLoading] = useState(false);
   return (
     <div className="w-screen h-screen px-4 py-8 md:flex gap-6">
       <div className="md:w-[500px]">
@@ -61,7 +62,8 @@ export default function Home() {
           isLoading={isLoading}
           fallback={
             <>
-              <div className="flex flex-col justify-between h-44 border border-gray-200 p-4 rounded-lg bg-white w-full">
+              <ClubBoxSkeleton />
+              {/* <div className="flex flex-col justify-between h-44 border border-gray-200 p-4 rounded-lg bg-white w-full">
                 <div className="space-y-1">
                   <div className="flex gap-1">
                     <Skeleton className="h-[16px] w-[70px]" />
@@ -73,30 +75,18 @@ export default function Home() {
                   </div>
                 </div>
                 <Skeleton className="h-[28px] w-[112px] rounded-3xl" />
-              </div>
+              </div> */}
             </>
           }
         >
-          <ClubBox
-            category="การสื่อสาร"
-            campus="บางเขน"
-            name="ชมรมส่งเสริมศิลปะการพูด"
-          />
-          <ClubBox
-            category="ศิลปะกรรมศาสตร์"
-            campus="บางเขน"
-            name="ชมรมส่งเสริมและเผยแพร่ศิลปวัฒนธรรมภาคเหนือ"
-          />
-          <ClubBox
-            category="การสื่อสาร"
-            campus="กำแพงแสน"
-            name="ชมรมส่งเสริมศิลปะการพูด"
-          />
-          <ClubBox
-            category="การสื่อสาร"
-            campus="ศรีราชา"
-            name="ชมรมส่งเสริมศิลปะการพูด"
-          />
+          {clubs.map((club) => (
+            <ClubBox
+              key={club.id}
+              clubType={club.clubType}
+              campus={club.campus}
+              clubName={club.clubName}
+            />
+          ))}
         </Loading>
       </div>
     </div>

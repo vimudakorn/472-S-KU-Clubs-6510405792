@@ -4,20 +4,20 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 interface Props {
-  category: string;
+  clubType: string;
   campus: string;
-  name: string;
+  clubName: string;
 }
 
-export default function ClubBox({ category, campus, name }: Props) {
+export default function ClubBox({ clubType, campus, clubName }: Props) {
   const router = useRouter();
   const [isFav, setIsFav] = useState(false);
   return (
     <div className="flex flex-col justify-between h-44 border border-gray-200 p-4 rounded-lg transition duration-300 hover:shadow-[5px_5px_0px_rgb(229,231,235)] w-full">
       <div className="flex justify-between items-start">
         <div>
-          <p className="text-xs">#{category} #{campus}</p>
-          <h5 className="text-lg font-semibold">{name}</h5>
+          <p className="text-xs">#{clubType} #{campus}</p>
+          <h5 className="text-lg font-semibold">{clubName}</h5>
         </div>
         <button onClick={() => setIsFav(!isFav)}>
           <Star
