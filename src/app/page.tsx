@@ -5,14 +5,23 @@ import { Search } from "lucide-react";
 import Image from "next/image";
 import FilterSelected from "@/components/FilterSelected";
 import ClubBox from "@/components/ClubBox";
-import { useRouter } from "next/router";
 import Loading from "@/components/Loading";
-import { useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import ClubBoxSkeleton from "@/components/ClubBoxSkeleton";
 import clubs from "@/app/_mocks_/data";
 
 export default function Home() {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    // Set a timeout to change isLoading to false after 2 seconds
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
+
+    // Cleanup the timeout
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div className="w-screen h-screen px-4 py-8 md:flex gap-6">
       <div className="md:w-[500px]">
@@ -60,28 +69,14 @@ export default function Home() {
       <div className="grid auto-rows-max mt-3 gap-3 md:grid-cols-2 w-full">
         <Loading
           isLoading={isLoading}
-          fallback={
-            <>
-              <ClubBoxSkeleton />
-              {/* <div className="flex flex-col justify-between h-44 border border-gray-200 p-4 rounded-lg bg-white w-full">
-                <div className="space-y-1">
-                  <div className="flex gap-1">
-                    <Skeleton className="h-[16px] w-[70px]" />
-                    <Skeleton className="h-[16px] w-[50px]" />
-                  </div>
-                  <div className="flex justify-between items-start gap-1">
-                    <Skeleton className="h-[28px] w-full" />
-                    <Skeleton className="h-[24px] w-[24px]" />
-                  </div>
-                </div>
-                <Skeleton className="h-[28px] w-[112px] rounded-3xl" />
-              </div> */}
-            </>
-          }
+          fallback={clubs.map((club) => (
+            <ClubBoxSkeleton key={club.id} />
+          ))}
         >
           {clubs.map((club) => (
             <ClubBox
               key={club.id}
+              id={club.id}
               clubType={club.clubType}
               campus={club.campus}
               clubName={club.clubName}

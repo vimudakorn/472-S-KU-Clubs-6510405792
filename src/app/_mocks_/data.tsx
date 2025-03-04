@@ -1,6 +1,6 @@
 const clubs: Club[] = [
     {
-        id: 1,
+        id: "1",
         clubName: "ชมรมดนตรีสากล",
         clubCode: "1XX4216000XX",
         clubType: "ศิลปะและดนตรี",
@@ -10,7 +10,7 @@ const clubs: Club[] = [
         aboutClub: "ชมรมดนตรีสากลเปิดโอกาสให้นักศึกษาที่มีใจรักในเสียงดนตรีได้พัฒนาทักษะและร่วมแสดงในงานต่าง ๆ",
         activities: [
             {
-                id: 101,
+                id: "101",
                 date: "10 มี.ค. 2568",
                 location: "ห้องซ้อมดนตรี A202",
                 time: "17.00-20.00",
@@ -25,7 +25,7 @@ const clubs: Club[] = [
         ]
     },
     {
-        id: 2,
+        id: "2",
         clubName: "ชมรมกีฬาแบดมินตัน",
         clubCode: "1XX4216000XX",
         clubType: "กีฬาและสุขภาพ",
@@ -35,7 +35,7 @@ const clubs: Club[] = [
         aboutClub: "ชมรมแบดมินตันส่งเสริมสุขภาพและความสามัคคีของนักศึกษาโดยมีการซ้อมและแข่งขันภายในมหาวิทยาลัย",
         activities: [
             {
-                id: 102,
+                id: "102",
                 date: "15 มี.ค. 2568",
                 location: "โรงยิมมหาวิทยาลัย",
                 time: "18.00-20.00",
@@ -50,7 +50,7 @@ const clubs: Club[] = [
         ]
     },
     {
-        id: 3,
+        id: "3",
         clubName: "ชมรมถ่ายภาพ",
         clubCode: "1XX4216000XX",
         clubType: "ศิลปะและสื่อสาร",
@@ -60,7 +60,7 @@ const clubs: Club[] = [
         aboutClub: "ชมรมถ่ายภาพเป็นพื้นที่สำหรับนักศึกษาที่สนใจในการถ่ายภาพ แบ่งปันเทคนิคและจัดกิจกรรมถ่ายภาพเชิงสร้างสรรค์",
         activities: [
             {
-                id: 103,
+                id: "103",
                 date: "20 มี.ค. 2568",
                 location: "ลานกิจกรรมกลางแจ้ง",
                 time: "16.00-19.00",
@@ -75,7 +75,7 @@ const clubs: Club[] = [
         ]
     },
     {
-        id: 4,
+        id: "4",
         clubName: "ชมรมอาสาพัฒนา",
         clubCode: "1XX4216000XX",
         clubType: "จิตอาสาและพัฒนาสังคม",
@@ -85,7 +85,7 @@ const clubs: Club[] = [
         aboutClub: "ชมรมอาสาพัฒนามุ่งเน้นการช่วยเหลือสังคมผ่านกิจกรรมอาสาต่าง ๆ เช่น การสร้างบ้านและการสอนหนังสือเด็กด้อยโอกาส",
         activities: [
             {
-                id: 104,
+                id: "104",
                 date: "5 เม.ย. 2568",
                 location: "โรงเรียนบ้านดงมะไฟ",
                 time: "08.00-16.00",
@@ -104,7 +104,7 @@ const clubs: Club[] = [
 // เพิ่มอีก 16 ชมรมให้ครบ 20
 for (let i = 5; i <= 20; i++) {
     clubs.push({
-        id: i,
+        id: `${i}`,
         clubName: `ชมรมที่ ${i}`,
         clubCode: `1XX421600XX`,
         clubType: "ทั่วไป",
@@ -114,7 +114,7 @@ for (let i = 5; i <= 20; i++) {
         aboutClub: `รายละเอียดเกี่ยวกับชมรมที่ ${i}`,
         activities: [
             {
-                id: 100 + i,
+                id: `${100 + i}`,
                 date: "1 พ.ค. 2568",
                 location: "อาคารกิจกรรม",
                 time: "13.00-16.00",
@@ -133,7 +133,7 @@ for (let i = 5; i <= 20; i++) {
 export default clubs;
 
 interface Club {
-    id: number;
+    id: string;
     clubName: string;
     clubCode: string;
     clubType: string;
@@ -145,7 +145,7 @@ interface Club {
 }
 
 interface Activity {
-    id: number;
+    id: string;
     date: string;
     location: string;
     time: string;

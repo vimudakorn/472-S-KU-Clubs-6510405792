@@ -1,5 +1,7 @@
 import { Skeleton } from "./ui/skeleton";
 
+
+
 export default function ClubBoxSkeleton() {
   return (
     <div className="flex flex-col justify-between h-44 border border-gray-200 p-4 rounded-lg bg-white w-full">
