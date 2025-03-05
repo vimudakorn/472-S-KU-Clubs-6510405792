@@ -11,6 +11,8 @@ import clubs from "@/app/_mocks_/data";
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedClubType, setSelectedClubType] = useState("ทุกประเภท");
+  const [selectedCampus, setSelectedCampus] = useState("ทุกวิทยาเขต");
   const [filteredClubs, setFilteredClubs] = useState(clubs);
 
   useEffect(() => {
@@ -23,12 +25,16 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    // Filter clubs based on the search term
-    const results = clubs.filter((club) =>
-      club.clubName.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    // Filter clubs based on search term, clubType, and campus
+    const results = clubs.filter((club) => {
+      const matchesSearch = club.clubName.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesClubType = selectedClubType === "ทุกประเภท" || club.clubType === selectedClubType;
+      const matchesCampus = selectedCampus === "ทุกวิทยาเขต" || club.campus === `วิทยาเขต${selectedCampus}`;
+      return matchesSearch && matchesClubType && matchesCampus;
+    });
+
     setFilteredClubs(results);
-  }, [searchTerm]);
+  }, [searchTerm, selectedClubType, selectedCampus]);
 
   return (
     <div className="w-screen h-screen px-4 py-8 md:flex gap-6">
@@ -49,6 +55,7 @@ export default function Home() {
           <h6 className="text-3xl font-semibold">
             <span className="text-lime-700">KU</span> Clubs
           </h6>
+          {/* Search Input */}
           <div className="flex mt-4 gap-2 w-full border border-gray-900 bg-gray-100 rounded-lg p-2">
             <Search />
             <input
@@ -60,21 +67,26 @@ export default function Home() {
             />
           </div>
           <p className="font-medium mt-3">Filters</p>
+          {/* Club Type Filter */}
           <div className="mt-3">
             <FilterSelected
               placeholder="ประเภทชมรม"
               items={["ทุกประเภท", "เทคโนโลยี", "วิทยาศาสตร์", "ศิลปะศาสตร์"]}
               className="rounded-tr-lg rounded-tl-lg"
+              onChange={setSelectedClubType}
             />
             <div className="w-full h-[1px] bg-white"></div>
+            {/* Campus Filter */}
             <FilterSelected
               placeholder="วิทยาเขต"
               items={["ทุกวิทยาเขต", "บางเขน", "กำแพงแสน", "ศรีราชา"]}
               className="rounded-br-lg rounded-bl-lg"
+              onChange={setSelectedCampus}
             />
           </div>
         </Loading>
       </div>
+      {/* Club List */}
       <div className="grid auto-rows-max mt-3 gap-3 md:grid-cols-2 w-full">
         <Loading
           isLoading={isLoading}

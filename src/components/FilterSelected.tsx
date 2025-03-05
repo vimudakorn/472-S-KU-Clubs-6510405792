@@ -3,25 +3,27 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 
 interface Props {
-    placeholder: string;
-    items: string[];
-    className?: string;
+  placeholder: string;
+  items: string[];
+  className?: string;
+  onChange: (value: string) => void; // Callback function for selection change
 }
-export default function FilterSelected({placeholder , items, className}: Props) {
+
+export default function FilterSelected({ placeholder, items, className, onChange }: Props) {
   return (
-    <Select>
-      <SelectTrigger className={`h-10 bg-green-900 border-none focus:border-transparent focus:ring-0 focus:outline-none rounded-none text-gray-100 ${className}`}>
-        <SelectValue className="" placeholder={placeholder} />
+    <Select onValueChange={onChange}>
+      <SelectTrigger
+        className={`h-10 bg-green-900 border-none focus:border-transparent focus:ring-0 focus:outline-none rounded-none text-gray-100 ${className}`}
+      >
+        <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>
-          {/* <SelectLabel>Fruits</SelectLabel> */}
           {items.map((item) => (
             <SelectItem key={item} value={item}>
               {item}
