@@ -1,26 +1,34 @@
 "use client";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import Image from "next/image";
 import FilterSelected from "@/components/FilterSelected";
 import ClubBox from "@/components/ClubBox";
 import Loading from "@/components/Loading";
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import ClubBoxSkeleton from "@/components/ClubBoxSkeleton";
 import clubs from "@/app/_mocks_/data";
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredClubs, setFilteredClubs] = useState(clubs);
+
   useEffect(() => {
-    // Set a timeout to change isLoading to false after 2 seconds
+    // Show skeleton for 2 seconds
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 2000);
 
-    // Cleanup the timeout
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    // Filter clubs based on the search term
+    const results = clubs.filter((club) =>
+      club.clubName.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredClubs(results);
+  }, [searchTerm]);
 
   return (
     <div className="w-screen h-screen px-4 py-8 md:flex gap-6">
@@ -32,7 +40,6 @@ export default function Home() {
               <Skeleton className="h-[36px] w-[135px]" />
               <Skeleton className="h-10 w-full mt-4" />
               <Skeleton className="h-[24px] w-[60px] mt-3" />
-
               <Skeleton className="h-10 w-full rounded-none rounded-tr-lg rounded-tl-lg mt-3" />
               <div className="w-full h-0.5"></div>
               <Skeleton className="h-10 w-full rounded-none rounded-br-lg rounded-bl-lg" />
@@ -48,6 +55,8 @@ export default function Home() {
               className="flex-1 border-none focus:border-transparent focus:ring-0 focus:outline-none bg-transparent text-sm"
               type="search"
               placeholder="ค้นหาชมรมที่ชื่นชอบ"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
           <p className="font-medium mt-3">Filters</p>
@@ -55,13 +64,13 @@ export default function Home() {
             <FilterSelected
               placeholder="ประเภทชมรม"
               items={["ทุกประเภท", "เทคโนโลยี", "วิทยาศาสตร์", "ศิลปะศาสตร์"]}
-              className={`rounded-tr-lg rounded-tl-lg`}
+              className="rounded-tr-lg rounded-tl-lg"
             />
             <div className="w-full h-[1px] bg-white"></div>
             <FilterSelected
               placeholder="วิทยาเขต"
               items={["ทุกวิทยาเขต", "บางเขน", "กำแพงแสน", "ศรีราชา"]}
-              className={`rounded-br-lg rounded-bl-lg r`}
+              className="rounded-br-lg rounded-bl-lg"
             />
           </div>
         </Loading>
@@ -73,20 +82,21 @@ export default function Home() {
             <ClubBoxSkeleton key={club.id} />
           ))}
         >
-          {clubs.map((club) => (
-            <ClubBox
-              key={club.id}
-              id={club.id}
-              clubType={club.clubType}
-              campus={club.campus}
-              clubName={club.clubName}
-            />
-          ))}
+          {filteredClubs.length > 0 ? (
+            filteredClubs.map((club) => (
+              <ClubBox
+                key={club.id}
+                id={club.id}
+                clubType={club.clubType}
+                campus={club.campus}
+                clubName={club.clubName}
+              />
+            ))
+          ) : (
+            <p className="text-gray-500">ไม่พบชมรมที่ค้นหา</p>
+          )}
         </Loading>
       </div>
     </div>
   );
-}
-function setStage(): [any, any] {
-  throw new Error("Function not implemented.");
 }
