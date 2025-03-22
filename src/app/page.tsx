@@ -1,4 +1,4 @@
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "../components/skeleton/skeleton";
 import Image from "next/image";
 
 export default function Home() {
