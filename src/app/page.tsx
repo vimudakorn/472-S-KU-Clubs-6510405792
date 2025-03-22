@@ -1,5 +1,4 @@
 "use client";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Search } from "lucide-react";
 import FilterSelected from "@/components/FilterSelected";
 import ClubBox from "@/components/ClubBox";
@@ -7,6 +6,8 @@ import Loading from "@/components/Loading";
 import { useEffect, useState } from "react";
 import ClubBoxSkeleton from "@/components/ClubBoxSkeleton";
 import clubs from "@/app/_mocks_/data";
+import { Skeleton } from "../components/skeleton/skeleton";
+import Image from "next/image";
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
