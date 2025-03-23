@@ -1,4 +1,4 @@
-import { Skeleton } from "@/components/skeleton/skeleton";
+import { Skeleton } from "./skeleton/skeleton";
 
 export default function ClubBoxSkeleton() {
   return (
