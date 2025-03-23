@@ -14,6 +14,7 @@ export default function ClubBox({id, clubType, campus, clubName }: Props) {
   const [isFav, setIsFav] = useState(false);
   const router = useRouter();
   const handleNavigate = () => {
+    router.prefetch(`/${id}`);
     router.push(`/${id}`);
   }
   return (

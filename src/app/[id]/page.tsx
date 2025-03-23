@@ -1,33 +1,30 @@
 import { notFound } from "next/navigation";
 import clubs from "@/app/_mocks_/data";
+import ClubInterface from "@/interfaces/Club";
+import ClubDetailComponent from "@/components/ClubDetail";
+import { Suspense } from "react";
 
-interface Club {
-  id: string;
-  clubName: string;
-  clubType: string;
-  campus: string;
-}
-
-
-async function getClubById(id: string): Promise<Club | null> {
+async function getClubById(id: string): Promise<ClubInterface | null> {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(clubs.find((club) => club.id === id) || null);
-    }, 100); // Simulating async delay
+    }, 5000); // Simulating async delay
   });
 }
 
-export default async function ClubDetailPage({ params }: { params: { id: string } }) {
-  const clubId = params.id;
-  const club = await getClubById(clubId);
-
+async function ClubDetailAsync({ id }: { id: string }) {
+  const club = await getClubById(id);
   if (!club) return notFound();
+  return <ClubDetailComponent club={club} />;
+}
 
+export default async function ClubDetailPage({ params }: { params: { id: string } }) {
+  const clubId = (await params).id;
   return (
-    <div className="w-screen h-screen flex flex-col items-center justify-center px-4 py-8">
-      <h1 className="text-3xl font-bold">{club.clubName}</h1>
-      <p className="text-lg mt-2">ประเภท: {club.clubType}</p>
-      <p className="text-lg">วิทยาเขต: {club.campus}</p>
-    </div>
+    <>
+      <Suspense fallback={<ClubDetailComponent club={null} />}>
+        <ClubDetailAsync id={clubId} />
+      </Suspense>
+    </>
   );
 }
