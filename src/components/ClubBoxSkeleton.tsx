@@ -1,6 +1,4 @@
-import { Skeleton } from "./ui/skeleton";
-
-
+import { Skeleton } from "./skeleton/skeleton";
 
 export default function ClubBoxSkeleton() {
   return (
