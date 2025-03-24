@@ -6,7 +6,6 @@ import ClubBox from "@/components/ClubBox";
 import Loading from "@/components/Loading";
 import { useEffect, useState } from "react";
 import ClubBoxSkeleton from "@/components/ClubBoxSkeleton";
-import clubs from "@/app/_mocks_/data";
 import Image from "next/image";
 import ClubInterface from "@/interfaces/Club";
 
@@ -18,17 +17,13 @@ export default function Home() {
   const [selectedCampus, setSelectedCampus] = useState("ทุกวิทยาเขต");
   const [filteredClubs, setFilteredClubs] = useState(clubs);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 2000); // Show skeleton for 2 seconds
-
-    return () => clearTimeout(timer);
-  }, []);
-
   // Fetch club data from API
   useEffect(() => {
-    fetch("/api/club")
+    const searchParams = new URLSearchParams();
+    searchParams.set("search" , searchTerm)
+    searchParams.set("selectedClubType" , selectedClubType)
+    searchParams.set("selectedCampus" , selectedCampus)
+    fetch("/api/clubs?"+searchParams.toString())
       .then((res) => res.json())
       .then((data) => {
         setClubs(data);
@@ -39,19 +34,7 @@ export default function Home() {
         console.error("Error fetching clubs:", error);
         setIsLoading(false);
       });
-  }, []);
-
-  useEffect(() => {
-    // Filter clubs based on search term, clubType, and campus
-    const results = clubs.filter((club) => {
-      const matchesSearch = club.clubName.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesClubType = selectedClubType === "ทุกประเภท" || club.clubType === selectedClubType;
-      const matchesCampus = selectedCampus === "ทุกวิทยาเขต" || club.campus === `วิทยาเขต${selectedCampus}`;
-      return matchesSearch && matchesClubType && matchesCampus;
-    });
-
-    setFilteredClubs(results);
-  }, [searchTerm, selectedClubType, selectedCampus]);
+  }, [searchTerm, selectedClubType,selectedCampus]);
 
   return (
     <div className="w-screen h-screen px-4 py-8 md:flex gap-6">
@@ -107,8 +90,8 @@ export default function Home() {
       <div className="grid auto-rows-max mt-3 gap-3 md:grid-cols-2 w-full">
         <Loading
           isLoading={isLoading}
-          fallback={clubs.map((club) => (
-            <ClubBoxSkeleton key={club.id} />
+          fallback={Array.from({length:10}).fill("").map((_,i) => (
+            <ClubBoxSkeleton key={i} />
           ))}
         >
           {filteredClubs.length > 0 ? (
