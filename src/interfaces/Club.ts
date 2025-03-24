@@ -10,4 +10,5 @@ export default interface Club {
     advisor: string;
     aboutClub: string;
     activities: Activity[];
+    committee?: Committee[];
   }

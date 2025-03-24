@@ -7,12 +7,16 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import ClubDetail from '@/components/ClubDetail';
 import ActivityList from '@/components/ActivityList';
-import ClubInterface  from '@/interfaces/Club';
+import ClubInterface from '@/interfaces/Club';
 import { useParams } from 'next/navigation';
+import { ArrowLeft, RefreshCcw } from 'lucide-react';
+import Link from 'next/link';
+import parseThaiDate from '@/utils/ThaiDate';
 
 export default function ClubDetailPage() {
   const { id } = useParams() as { id: string };
-  const [loading, setLoading] = useState(true);
+  const [loadingClub, setLoadingClub] = useState(true);
+  const [loadingActivities, setLoadingActivities] = useState(true);
   const [clubData, setClubData] = useState<ClubInterface | null>(null);
   const [activities, setActivities] = useState<any[]>([]);
 
@@ -20,58 +24,45 @@ export default function ClubDetailPage() {
   const [sortOption, setSortOption] = useState('newest');
   const [filteredActivities, setFilteredActivities] = useState<any[]>([]);
 
-  // จำลองการโหลดข้อมูล
-  useEffect(() => {
-      fetch(`/api/club/${id}`)
-        .then(res => res.json())
-        .then(data => {
-          setClubData(data);
-          setLoading(false);
-        })
-        .catch(error => {
-          console.error("Error fetching club data:", error);
-          setLoading(false);
-        });
-  }, []);
+  function getClubById() {
+    fetch(`/api/club/${id}`)
+      .then(res => res.json())
+      .then(data => {
+        if (!data.ok) {
+          setLoadingClub(false);
+        }
+        setClubData(data);
+      })
+      .catch(error => {
+        console.error("Error fetching club data:", error);
+        setLoadingClub(false);
+      });
+  }
 
-  useEffect(() => {
+  function getActivityById(){
     fetch(`/api/club/${id}/activities`)
       .then(res => res.json())
       .then(data => {
         setActivities(data);
+        setLoadingActivities(false);
       })
       .catch(error => {
         console.error("Error fetching activities:", error);
+        setLoadingActivities(false);
       });
+  }
+
+  useEffect(() => {
+    getClubById();
+    getActivityById();
   }, []);
 
-  // ฟังก์ชันสำหรับแปลงวันที่ไทยเป็น Date object
-  const parseThaiDate = (thaiDate: string) => {
-    const months: Record<string, number> = {
-      'มกราคม': 0, 'กุมภาพันธ์': 1, 'มีนาคม': 2, 'เมษายน': 3,
-      'พฤษภาคม': 4, 'มิถุนายน': 5, 'กรกฎาคม': 6, 'สิงหาคม': 7,
-      'กันยายน': 8, 'ตุลาคม': 9, 'พฤศจิกายน': 10, 'ธันวาคม': 11
-    };
-
-    const parts = thaiDate.split(' ');
-    if (parts.length === 3) {
-      const day = parseInt(parts[0]);
-      const month = months[parts[1]];
-      const year = parseInt(parts[2]);
-
-      if (!isNaN(day) && month !== undefined && !isNaN(year)) {
-        return new Date(year, month, day);
-      }
-    }
-    return new Date();
-  };
-
-  // ฟังก์ชันสำหรับกรองและเรียงลำดับกิจกรรม
+  // Filter and sort activities
   useEffect(() => {
-    if (!loading) {
+    if (!loadingActivities) {
       let result = [...activities];
 
-      // กรองตามคำค้นหา
+      // Filter activities by search term
       if (searchTerm) {
         result = result.filter(activity =>
           activity.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -79,7 +70,7 @@ export default function ClubDetailPage() {
         );
       }
 
-      // เรียงลำดับตามตัวเลือก
+      // Order activities by sort option
       switch (sortOption) {
         case 'newest':
           result.sort((a, b) => parseThaiDate(b.date).getTime() - parseThaiDate(a.date).getTime());
@@ -97,20 +88,39 @@ export default function ClubDetailPage() {
 
       setFilteredActivities(result);
     }
-  }, [searchTerm, sortOption, activities, loading]);
-
-  if (!clubData && !loading) {
-    return <div className="p-6">ไม่พบข้อมูลชมรม</div>;
-  }
+  }, [searchTerm, sortOption, activities, loadingActivities]);
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-gray-50">
       {/* Sidebar - Club Detail */}
-      <ClubDetail club={clubData} />
+      <aside id="default-sidebar" className="w-full md:w-80 lg:w-96 bg-green-800 text-white md:sticky md:top-0 md:h-screen md:overflow-y-auto shrink-0" aria-label="Sidebar">
+        <div className="h-full px-3 py-4 bg-green-900 text-green-100 overflow-y-auto flex flex-col">
+          <Link href="/" className="flex items-center mb-6 cursor-pointer">
+            <ArrowLeft className="mr-2" />
+            <h2 className="text-xl font-medium">ย้อนกลับ</h2>
+          </Link>
+          {!clubData && !loadingClub ? (
+            <div className="flex flex-col items-center justify-center mt-auto mb-auto">
+              <RefreshCcw className="w-12 h-12 text-white-800 mb-4" />
+              <p className="text-2xl font-semibold text-white-800 mb-6">
+                เกิดข้อผิดพลาด (500)
+              </p>
+              <button onClick={() => {
+                setLoadingClub(true);
+                getClubById();
+              }} className="bg-green-600 text-white py-3 px-8 rounded-xl shadow-lg hover:bg-green-500 transition duration-300 ease-in-out">
+                รีเฟรช
+              </button>
+            </div>
+          ) : (
+            <ClubDetail club={clubData} />
+          )}
+        </div>
+      </aside>
 
       {/* Main content - Club Activities */}
       <div className="flex-1 p-4 md:p-6 md:overflow-y-auto">
-        {loading ? (
+        {loadingActivities ? (
           <>
             {/* Skeleton for banner */}
             <div className="w-full h-40 md:h-48 rounded-lg mb-4 md:mb-6 bg-gray-200 animate-pulse"></div>
