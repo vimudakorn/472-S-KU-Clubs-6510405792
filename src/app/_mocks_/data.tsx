@@ -1,3 +1,5 @@
+import Club from "@/interfaces/Club";
+
 const clubs: Club[] = [
     {
         id: "1",
