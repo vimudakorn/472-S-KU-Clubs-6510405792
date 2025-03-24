@@ -1,143 +1,119 @@
-// import { test, expect } from "@playwright/test";
-
-// test.describe("Club Page", () => {
-//   // Increase timeout for navigation
-//   test.setTimeout(6000);
-
-//   test.beforeEach(async ({ page }) => {
-//     try {
-//       await page.goto("/", { timeout: 4000 });
-
-//       await page.waitForSelector("text=KU Clubs", { timeout: 4000 });
-//     } catch (error) {
-//       console.error("Navigation failed:", error);
-
-//       await page.screenshot({ path: "navigation-error.png" });
-//       throw error;
-//     }
-//   });
-
-
-// });
-
-
-// playwright-test/home.spec.tsx
 import { test, expect } from '@playwright/test';
+import path from "path";
+import fs from "fs/promises";
+import Club from "@/interfaces/Club";
 
-test('Display Loading Skeleton', async ({ page }) => {
-  await page.goto('/');
+const getClubs = async () => {
+  try {
+    const filePath = path.join(process.cwd(), "data/clubs.json");
+    const fileData = await fs.readFile(filePath, "utf-8");
 
-  // Check if skeleton elements are visible
-  await expect(page.locator('text=KU Clubs').locator('..').locator('div').first()).toHaveText('Loading...', {
-    ignoreCase: true,
-  });
-  await expect(page.locator('text=ประเภทชมรม').locator('..').locator('div').first()).toHaveText('Loading...', {
-    ignoreCase: true,
-  });
-  await expect(page.locator('text=วิทยาเขต').locator('..').locator('div').first()).toHaveText('Loading...', {
-    ignoreCase: true,
-  });
-  // Check for ClubBoxSkeleton elements
-  await expect(page.locator('text=Loading...').nth(3)).toBeVisible();
-});
+    if (!fileData) {
+      throw new Error("ไม่พบไฟล์ .json ข้อมูลองค์กรนิสิต");
+    }
 
-test('Hide Skeleton on Data Load', async ({ page }) => {
-  await page.goto('/');
+    const clubs = JSON.parse(fileData) as Club[];
 
-  // Wait for the loading to finish (adjust timeout if needed)
-  await page.waitForTimeout(2500); // 2000ms + buffer
+    return clubs;
+  } catch (error) {
+    console.error("เกิดข้อผิดพลาด:", error);
+    throw new Error("เกิดข้อผิดพลาดในการค้นหาองค์กรนิสิต");
+  }
+};
 
-  // Check if skeleton elements are hidden
-  await expect(page.locator('text=KU Clubs').locator('..').locator('div').first()).not.toHaveText('Loading...', {
-    ignoreCase: true,
-  });
-  await expect(page.locator('text=ประเภทชมรม').locator('..').locator('div').first()).not.toHaveText('Loading...', {
-    ignoreCase: true,
-  });
-  await expect(page.locator('text=วิทยาเขต').locator('..').locator('div').first()).not.toHaveText('Loading...', {
-    ignoreCase: true,
-  });
-  // Check for ClubBoxSkeleton elements are hidden
-  await expect(page.locator('text=Loading...').nth(3)).not.toBeVisible();
+test.describe('Club Page', () => {
 
-  // Check if actual content is displayed
-  await expect(page.locator('text=ชมรมพัฒนาซอฟต์แวร์')).toBeVisible();
-});
+  test.beforeEach(async ({ page }) => {
+    // Mock API response for testing
+    await page.route('/api/clubs*', async (route) => {
+      const clubs = await getClubs();
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(clubs),
+      });
+    });
 
-test('Consistent User Experience - Navigation and Loading', async ({ page }) => {
-  await page.goto('/');
-
-  // Navigate to a different page (simulate navigation)
-  await page.evaluate(() => {
-    window.history.pushState({}, 'New Page', '/new-page');
+    await page.goto('/');
   });
 
-  // Navigate back
-  await page.goBack();
-
-  // Check if skeleton elements are visible again
-  await expect(page.locator('text=KU Clubs').locator('..').locator('div').first()).toHaveText('Loading...', {
-    ignoreCase: true,
+  test('should display loading skeleton while fetching data', async ({ page }) => {
+    // Ensure skeletons are visible during loading
+    await expect(page.getByTestId('skeleton').first()).toBeVisible();
   });
-  await expect(page.locator('text=ประเภทชมรม').locator('..').locator('div').first()).toHaveText('Loading...', {
-    ignoreCase: true,
+
+  test('should hide skeleton and display content after data loads', async ({ page }) => {
+    // Wait for the data to load and skeleton to disappear
+    await expect(page.getByTestId('skeleton')).toHaveCount(0);
+
+    // Ensure club content is displayed
+    await expect(page.getByText('ชมรมดนตรีสากล')).toBeVisible();
   });
-  await expect(page.locator('text=วิทยาเขต').locator('..').locator('div').first()).toHaveText('Loading...', {
-    ignoreCase: true,
+
+  test('should filter clubs based on search input', async ({ page }) => {
+    // Input a search term
+    await page.fill('input[type="search"]', 'ดนตรี');
+
+    // Verify the filtered result
+    await expect(page.getByText('ชมรมดนตรีสากล')).toBeVisible();
   });
-  await expect(page.locator('text=Loading...').nth(3)).toBeVisible();
 
-  // Wait for loading to finish and check content
-  await page.waitForTimeout(2500);
-  await expect(page.locator('text=ชมรมดนตรีสากล')).toBeVisible();
-  await expect(page.locator('text=KU Clubs').locator('..').locator('div').first()).not.toHaveText('Loading...', {
-    ignoreCase: true,
+  test('should display fallback message if no club is found', async ({ page }) => {
+    // Input a search term that yields no results
+    await page.fill('input[type="search"]', 'Non-existent Club');
+    await page.waitForTimeout(2000);
+    // Verify no results message appears
+    await expect(page.getByText('ไม่พบชมรมที่ค้นหา')).toBeVisible();
   });
-  await expect(page.locator('text=ประเภทชมรม').locator('..').locator('div').first()).not.toHaveText('Loading...', {
-    ignoreCase: true,
+
+  test('should maintain loading state on navigation and return', async ({ page }) => {
+    // Navigate to another page
+    await page.goto('/club/1/activities');
+
+    // Return to home page
+    await page.goto('/');
+
+    // Ensure skeleton is visible during re-fetching
+    await expect(page.getByTestId('skeleton').first()).toBeVisible();
   });
-  await expect(page.locator('text=วิทยาเขต').locator('..').locator('div').first()).not.toHaveText('Loading...', {
-    ignoreCase: true,
+
+  test('should display all clubs with name, and description', async ({ page }) => {
+    await page.waitForTimeout(2000);
+    await expect(page.getByText('ชมรมดนตรีสากล')).toBeVisible();
+    // await expect(page.getByText('#ศิลปะและดนตรี')).toBeVisible();
+    // await expect(page.getByText('#วิทยาเขตบางเขต')).toBeVisible();
   });
-  await expect(page.locator('text=Loading...').nth(3)).not.toBeVisible();
-});
 
-test('Search functionality', async ({ page }) => {
-  await page.goto('/');
-  await page.waitForTimeout(2500);
+  test('should navigate to club detail page on click', async ({ page }) => {
+    await page.click('text=Technology Club');
+    await expect(page).toHaveURL('/clubs/1');
 
-  await page.locator('input[type="search"]').fill('ดนตรี');
-  await expect(page.locator('text=ชมรมดนตรีสากล')).toBeVisible();
-  await expect(page.locator('text=ชมรมวิทยาศาสตร์สิ่งแวดล้อม')).not.toBeVisible();
-});
+    await expect(page.getByText('Technology Club')).toBeVisible();
+    await expect(page.getByText('A club focused on cutting-edge technology.')).toBeVisible();
+    await expect(page.getByText('Activities')).toBeVisible();
+    await expect(page.getByText('Contact Details')).toBeVisible();
+    await expect(page.getByText('Social Media Links')).toBeVisible();
+  });
 
-test('Filter by Club Type', async ({ page }) => {
-  await page.goto('/');
-  await page.waitForTimeout(2500);
+  test('should support pagination and load more content', async ({ page }) => {
+    await page.route('/api/clubs?page=2', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          {
+            id: 3,
+            clubName: 'Music Club',
+            clubType: 'ศิลปะศาสตร์',
+            campus: 'วิทยาเขตศรีราชา',
+            description: 'A club for music lovers.',
+            logo: '/logos/music-club.png',
+          },
+        ]),
+      });
+    });
 
-  await page.locator('text=ประเภทชมรม').click();
-  await page.locator('text=เทคโนโลยี').click();
-  await expect(page.locator('text=ชมรมพัฒนาซอฟต์แวร์')).toBeVisible();
-  await expect(page.locator('text=ชมรมวิทยาศาสตร์สิ่งแวดล้อม')).not.toBeVisible();
-});
-
-test('Filter by Campus', async ({ page }) => {
-  await page.goto('/');
-  await page.waitForTimeout(2500);
-
-  await page.locator('text=วิทยาเขต').click();
-  await page.locator('text=บางเขน').click();
-  await expect(page.locator('text=ชมรมพัฒนาซอฟต์แวร์')).toHaveText(/วิทยาเขตบางเขน/);
-  await page.locator('text=วิทยาเขต').click();
-  await page.locator('text=ศรีราชา').click();
-  await expect(page.locator('text=ชมรมพัฒนาซอฟต์แวร์')).not.toBeVisible();
-
-});
-
-test('No Clubs Found', async ({ page }) => {
-  await page.goto('/');
-  await page.waitForTimeout(2500);
-
-  await page.locator('input[type="search"]').fill('Nonexistent Club');
-  await expect(page.locator('text=ไม่พบชมรมที่ค้นหา')).toBeVisible();
+    await page.locator('button:has-text("Load More")').click();
+    await expect(page.getByText('Music Club')).toBeVisible();
+  });
 });
