@@ -1,3 +1,5 @@
+import Activity from "./Activity";
+
 export default interface Club {
     id: string;
     clubCode: string;

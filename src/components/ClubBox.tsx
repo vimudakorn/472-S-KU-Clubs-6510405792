@@ -15,7 +15,7 @@ export default function ClubBox({id, clubType, campus, clubName }: Props) {
   const router = useRouter();
   
   const handleNavigate = () => {
-    router.push(`/ClubActivities?id=${id}`);
+    router.push(`/club/${id}/activities`);
   }
   
   return (

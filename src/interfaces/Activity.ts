@@ -1,4 +1,4 @@
-export interface Activity {
+export default interface Activity {
   id: string;
   title: string;
   date: string;
@@ -18,4 +18,5 @@ export interface Activity {
   detailedDescription: string;
   summary?: string;
   images?: string[];
+  activityHours: ActivityHours;
 }
