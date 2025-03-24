@@ -1,3 +1,5 @@
+import Club from "@/interfaces/Club";
+
 const clubs: Club[] = [
     {
         id: "1",
@@ -131,31 +133,3 @@ for (let i = 5; i <= 20; i++) {
 }
 
 export default clubs;
-
-interface Club {
-    id: string;
-    clubName: string;
-    clubCode: string;
-    clubType: string;
-    campus: string;
-    clubPresident: string;
-    advisor: string;
-    aboutClub: string;
-    activities: Activity[];
-}
-
-interface Activity {
-    id: string;
-    date: string;
-    location: string;
-    time: string;
-    activityName: string;
-    aboutActivity: string;
-    activityHours: ActivityHours;
-}
-
-interface ActivityHours {
-    universityActivity: number;
-    fitnessActivity: number;
-    socialActivity: number;
-}
