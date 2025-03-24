@@ -25,9 +25,20 @@ export default function ActivityList({ activities, status }: ActivityListProps) 
   
   return (
     <div className="space-y-4">
-      {filteredActivities.map(activity => (
-        <ActivityCard key={activity.id} activity={activity} />
-      ))}
+      {filteredActivities.map(activity => {
+        // ตรวจสอบและเพิ่มฟิลด์ที่จำเป็นถ้าไม่มี
+        const enhancedActivity = {
+          ...activity,
+          title: activity.title || activity.activityName || `กิจกรรม ${activity.id}`,
+          description: activity.description || activity.aboutActivity || `รายละเอียดกิจกรรมที่จัดขึ้นที่ ${activity.location} ในวันที่ ${activity.date} เวลา ${activity.time}`
+        };
+        
+        console.log("Enhanced activity:", enhancedActivity);
+        
+        return (
+          <ActivityCard key={activity.id} activity={enhancedActivity} />
+        );
+      })}
     </div>
   );
 }

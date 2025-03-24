@@ -28,10 +28,9 @@ export default function ClubDetailPage() {
     fetch(`/api/club/${id}`)
       .then(res => res.json())
       .then(data => {
-        if (!data.ok) {
-          setLoadingClub(false);
-        }
+        console.log("Club data received:", data);
         setClubData(data);
+        setLoadingClub(false); // ย้ายมาที่นี่เพื่อให้แน่ใจว่า loading state ถูกอัปเดตหลังจากได้รับข้อมูล
       })
       .catch(error => {
         console.error("Error fetching club data:", error);
@@ -40,34 +39,66 @@ export default function ClubDetailPage() {
   }
 
   function getActivityById(){
+    console.log("Fetching activities for club ID:", id);
     fetch(`/api/club/${id}/activities`)
-      .then(res => res.json())
+      .then(res => {
+        console.log("Response status:", res.status);
+        return res.json();
+      })
       .then(data => {
-        setActivities(data);
+        console.log("Activities data received:", data);
+        if (Array.isArray(data)) {
+          // ใช้ข้อมูลที่ API ส่งมาโดยตรง ไม่ต้องสร้างข้อมูลเพิ่มเติม
+          setActivities(data);
+        } else {
+          console.error("Received non-array data:", data);
+          setActivities([]);
+        }
         setLoadingActivities(false);
       })
       .catch(error => {
         console.error("Error fetching activities:", error);
         setLoadingActivities(false);
+        setActivities([]);
       });
   }
 
   useEffect(() => {
     getClubById();
     getActivityById();
-  }, []);
+    
+    // เพิ่ม timeout เพื่อให้แน่ใจว่า loading state จะถูกรีเซ็ตหลังจากเวลาที่กำหนด
+    const timeout = setTimeout(() => {
+      if (loadingActivities) {
+        setLoadingActivities(false);
+      }
+      if (loadingClub) {
+        setLoadingClub(false);
+      }
+    }, 5000); // 5 วินาที
+    
+    return () => clearTimeout(timeout);
+  }, [id]); // เพิ่ม id เป็น dependency
 
   // Filter and sort activities
   useEffect(() => {
     if (!loadingActivities) {
+      console.log("Current activities:", activities);
+      
       let result = [...activities];
 
       // Filter activities by search term
       if (searchTerm) {
-        result = result.filter(activity =>
-          activity.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          activity.description.toLowerCase().includes(searchTerm.toLowerCase())
-        );
+        result = result.filter(activity => {
+          console.log("Filtering activity:", activity);
+          return (
+            // ใช้ฟิลด์ที่เพิ่มเข้ามาใหม่
+            (activity.title?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (activity.description?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (activity.location?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (activity.date?.toLowerCase().includes(searchTerm.toLowerCase()))
+          );
+        });
       }
 
       // Order activities by sort option
@@ -79,10 +110,12 @@ export default function ClubDetailPage() {
           result.sort((a, b) => parseThaiDate(a.date).getTime() - parseThaiDate(b.date).getTime());
           break;
         case 'alphabetical':
-          result.sort((a, b) => a.title.localeCompare(b.title));
+          // ใช้ title ที่เพิ่มเข้ามาใหม่
+          result.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
           break;
         case 'reverseAlphabetical':
-          result.sort((a, b) => b.title.localeCompare(a.title));
+          // ใช้ title ที่เพิ่มเข้ามาใหม่
+          result.sort((a, b) => (b.title || '').localeCompare(a.title || ''));
           break;
       }
 
