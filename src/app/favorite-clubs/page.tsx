@@ -3,17 +3,16 @@ import Loading from '@/components/Loading';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react'
-import clubs from "@/app/_mocks_/data";
 import ClubBoxSkeleton from '@/components/ClubBoxSkeleton';
 import ClubBox from '@/components/ClubBox';
 import { ActivitySkeleton } from '@/components/skeleton/activity-skeleton';
 import FilterSelected from '@/components/FilterSelected';
+import Club from '@/interfaces/Club';
 
 export default function page() {
+    const [clubs, setClubs] = useState<Club[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [selectedClubType, setSelectedClubType] = useState("ทุกประเภท");
-    const [filteredClubs, setFilteredClubs] = useState(clubs);
+    const [filteredClubs, setFilteredClubs] = useState<Club[]>([]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -24,14 +23,18 @@ export default function page() {
     }, []);
 
     useEffect(() => {
-        const results = clubs.filter((club) => {
-            const matchesSearch = club.clubName.toLowerCase().includes(searchTerm.toLowerCase());
-            const matchesClubType = selectedClubType === "ทุกประเภท" || club.clubType === selectedClubType;
-            return matchesSearch && matchesClubType;
-        });
-        console.log(results);
-        setFilteredClubs(results);
-    }, [searchTerm, selectedClubType])
+        fetch("/api/club")
+          .then((res) => res.json())
+          .then((data: Club[]) => {
+            setClubs(data);
+            setFilteredClubs(data);
+            setIsLoading(false);
+          })
+          .catch((error) => {
+            console.error("Error fetching clubs:", error);
+            setIsLoading(false);
+          });
+    }, [])
     
     return (
       <div className="flex flex-col md:flex-row min-h-screen bg-gray-5">
@@ -60,7 +63,8 @@ export default function page() {
                 <div className="space-y-6">
                   <div className="space-y-1">
                     <p className="text-2xl text-bold text-green-300">
-                      ชมรมโปรด
+                      ชมรมโปรhyiiiii
+                      5ด
                     </p>
                   </div>
                 </div>
@@ -88,15 +92,17 @@ export default function page() {
               ))}
             >
               {filteredClubs.length > 0 ? (
-                filteredClubs.map((club) => (
-                  <ClubBox
-                    key={club.id}
-                    id={club.id}
-                    clubType={club.clubType}
-                    campus={club.campus}
-                    clubName={club.clubName}
-                  />
-                ))
+                filteredClubs.map((club) => {
+                  const isFav = localStorage.getItem(`favoriteClub-${club.id}`);
+                  return isFav && (
+                    <ClubBox
+                      key={club.id}
+                      id={club.id}
+                      clubType={club.clubType}
+                      campus={club.campus}
+                      clubName={club.clubName}
+                    />
+                  )})
               ) : (
                 <p className="text-gray-500">ไม่พบชมรมที่ค้นหา</p>
               )}
