@@ -223,15 +223,15 @@ export default function ClubDetailPage() {
               </TabsList>
 
               <TabsContent value="upcoming">
-                <ActivityList activities={filteredActivities} status="upcoming" />
+                <ActivityList activities={filteredActivities} status="upcoming" clubId={id} />
               </TabsContent>
 
               <TabsContent value="ongoing">
-                <ActivityList activities={filteredActivities} status="ongoing" />
+                <ActivityList activities={filteredActivities} status="ongoing" clubId={id} />
               </TabsContent>
 
               <TabsContent value="past">
-                <ActivityList activities={filteredActivities} status="past" />
+                <ActivityList activities={filteredActivities} status="past" clubId={id} />
               </TabsContent>
             </Tabs>
           </>

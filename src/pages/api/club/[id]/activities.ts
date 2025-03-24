@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import fs from "fs/promises";
 import path from "path";
 import ClubInterface from "@/interfaces/Club";
-import ActivityInterface from "@/interfaces/Activity";
+import Activity, { ActivityInterface } from "@/interfaces/Activity";
 
 export default async function getClubActivities(
   req: NextApiRequest,
@@ -67,7 +67,7 @@ export default async function getClubActivities(
           } else {
             // สำหรับกิจกรรม past อื่นๆ ที่ไม่ได้กำหนดเฉพาะ
             activitySummary = `กิจกรรม ${
-              activity.title
+              activity.activityName
             } ได้จัดขึ้นเมื่อวันที่ ${activity.date} ณ ${
               activity.location
             } มีผู้เข้าร่วมทั้งสิ้น ${Math.floor(
@@ -88,12 +88,12 @@ export default async function getClubActivities(
 
         return {
           id: activity.id,
-          title: activity.title || activity.activityName || `กิจกรรม ${activity.id}`,
+          activityName: activity.activityName || activity.title || `กิจกรรม ${activity.id}`,
           date: activityDate,
           time: activity.time,
           location: activity.location,
-          description: activity.description || activity.aboutActivity || `รายละเอียดกิจกรรมที่จัดขึ้นที่ ${activity.location} ในวันที่ ${activity.date} เวลา ${activity.time}`,
-          status: activity.status || "upcoming", // ใช้ status จากข้อมูลจริง หรือ default เป็น upcoming
+          aboutActivity: activity.aboutActivity || activity.description || `รายละเอียดกิจกรรมที่จัดขึ้นที่ ${activity.location} ในวันที่ ${activity.date} เวลา ${activity.time}`,
+          status: activity.status || "upcoming",
           clubId: clubId,
           fee: activity.fee || "ฟรี",
           deadline: activityDeadline,
@@ -108,8 +108,8 @@ export default async function getClubActivities(
           },
           requirements: activity.requirements || "เปิดรับนิสิตทุกคณะ",
           detailedDescription: activity.detailedDescription,
-          summary: activitySummary || undefined, // เพิ่มข้อมูลสรุปกิจกรรม
-          images: activityImages.length > 0 ? activityImages : undefined, // เพิ่มข้อมูลรูปภาพกิจกรรม
+          summary: activitySummary || undefined,
+          images: activityImages.length > 0 ? activityImages : undefined,
         };
       }
     );

@@ -2,34 +2,23 @@ import React from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
+// Add clubId to your props interface
 interface ActivityCardProps {
-  activity: {
-    id: string;
-    title?: string; // เพิ่ม ? เพื่อให้เป็น optional
-    date: string;
-    time: string;
-    location: string;
-    maxParticipants: number;
-    description?: string; // เพิ่ม ? เพื่อให้เป็น optional
-    fee: string;
-    benefits?: {
-      certificate: boolean;
-    };
-    deadline: string;
-    status: string;
-  };
+  activity: any;
+  clubId: string; // Add this line
 }
 
-export default function ActivityCard({ activity }: ActivityCardProps) {
+// Update the function signature to include clubId
+export default function ActivityCard({ activity, clubId }: ActivityCardProps) {
   // เพิ่ม console.log เพื่อตรวจสอบข้อมูลที่ได้รับ
   console.log("Activity in card:", activity);
   
   return (
     <div className="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-all duration-300">
       <div className="flex flex-col sm:flex-row justify-between items-start gap-2 mb-3">
-        <h3 className="text-lg font-bold">{activity.title || `กิจกรรม ${activity.id}`}</h3>
+        <h3 className="text-lg font-bold">{activity.activityName || `กิจกรรม ${activity.id}`}</h3>
         <Button variant="outline" className="border-green-500 text-green-600 hover:bg-green-50 w-full sm:w-auto" asChild>
-          <Link href={`/activities/${activity.id}`}>
+          <Link href={`/club/${clubId}/activities/${activity.id}`}>
             ดูรายละเอียดทั้งหมด
           </Link>
         </Button>
@@ -63,7 +52,7 @@ export default function ActivityCard({ activity }: ActivityCardProps) {
         </div>
       </div>
       
-      <p className="text-sm text-gray-700 mb-3">{activity.description || `รายละเอียดกิจกรรมที่จัดขึ้นที่ ${activity.location} ในวันที่ ${activity.date} เวลา ${activity.time}`}</p>
+      <p className="text-sm text-gray-700 mb-3">{activity.aboutActivity || `รายละเอียดกิจกรรมที่จัดขึ้นที่ ${activity.location} ในวันที่ ${activity.date} เวลา ${activity.time}`}</p>
       
       <div className="flex flex-wrap gap-2">
         <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">

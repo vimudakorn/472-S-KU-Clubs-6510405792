@@ -3,10 +3,11 @@ import ActivityCard from './ActivityCard';
 
 interface ActivityListProps {
   activities: any[];
-  status: 'upcoming' | 'ongoing' | 'past';
+  status: string;
+  clubId: string;
 }
 
-export default function ActivityList({ activities, status }: ActivityListProps) {
+export default function ActivityList({ activities, status, clubId }: ActivityListProps) {
   const filteredActivities = activities.filter(activity => activity.status === status);
   
   if (filteredActivities.length === 0) {
@@ -29,14 +30,14 @@ export default function ActivityList({ activities, status }: ActivityListProps) 
         // ตรวจสอบและเพิ่มฟิลด์ที่จำเป็นถ้าไม่มี
         const enhancedActivity = {
           ...activity,
-          title: activity.title || activity.activityName || `กิจกรรม ${activity.id}`,
-          description: activity.description || activity.aboutActivity || `รายละเอียดกิจกรรมที่จัดขึ้นที่ ${activity.location} ในวันที่ ${activity.date} เวลา ${activity.time}`
+          activityName: activity.activityName || activity.title || `กิจกรรม ${activity.id}`,
+          aboutActivity: activity.aboutActivity || activity.description || `รายละเอียดกิจกรรมที่จัดขึ้นที่ ${activity.location} ในวันที่ ${activity.date} เวลา ${activity.time}`
         };
         
         console.log("Enhanced activity:", enhancedActivity);
         
         return (
-          <ActivityCard key={activity.id} activity={enhancedActivity} />
+          <ActivityCard key={activity.id} activity={enhancedActivity} clubId={clubId} />
         );
       })}
     </div>
