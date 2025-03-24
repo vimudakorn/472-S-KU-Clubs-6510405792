@@ -1,22 +1,11 @@
 import { ArrowLeft } from 'lucide-react';
 import Link from "next/link";
 import { Skeleton } from "./skeleton/skeleton";
-
-// ปรับ interface ให้ตรงกับโครงสร้างข้อมูลใน _mocks_/data
-interface ClubInterface {
-  id: string;
-  clubName: string;
-  clubType: string;
-  campus: string;
-  clubCode?: string;
-  clubPresident?: string;
-  advisor?: string;
-  aboutClub?: string;
-}
+import ClubInterface from "@/interfaces/Club";
 
 export default function ClubDetail({ club }: { club: ClubInterface | null }) {
     return (
-        <aside id="default-sidebar" className="fixed top-0 left-0 z-40 w-96 h-screen transition-transform -translate-x-full sm:translate-x-0" aria-label="Sidebar">
+        <aside id="default-sidebar" className="w-full md:w-80 lg:w-96 bg-green-800 text-white md:sticky md:top-0 md:h-screen md:overflow-y-auto shrink-0" aria-label="Sidebar">
             <div className="h-full px-3 py-4 overflow-y-auto bg-green-900 text-green-100">
                 <Link href="/" className="flex items-center mb-6 cursor-pointer">
                     <ArrowLeft className="mr-2" />

@@ -10,12 +10,6 @@ export default async function findClubById(
   //Add Delay to simulate server response time
   await new Promise((resolve) => setTimeout(resolve, 2000));
 
-  const { id } = req.query;
-
-  if (!id || isNaN(Number(id))) {
-    return res.status(400).json({ message: "ท่านเรียกใช้งานไม่ถูกต้อง" });
-  }
-
   try {
     const filePath = path.join(process.cwd(), "data/clubs.json");
     const fileData = await fs.readFile(filePath, "utf-8");
@@ -26,14 +20,8 @@ export default async function findClubById(
         .json({ message: "ไม่พบไฟล์ .json ข้อมูลองค์กรนิสิต" });
     }
 
-    const clubs = JSON.parse(fileData);
-    const club = clubs.find((club: ClubInterface) => club.id === id);
-
-    if (!club) {
-      return res.status(404).json({ message: "ไม่พบองค์กรนิสิตที่ค้นหา" });
-    }
-
-    return res.status(200).json(club);
+    const clubs = JSON.parse(fileData) as ClubInterface[];
+    return res.status(200).json(clubs);
   } catch (error) {
     console.error("เกิดข้อผิดพลาด:", error);
     return res

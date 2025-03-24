@@ -1,17 +1,15 @@
 "use client";
 import { Skeleton } from "@/components/skeleton/skeleton";
-// หรือถ้าต้องการ import โดยตรง
-// import { Skeleton } from "@/components/skeleton";
 import { Search } from "lucide-react";
 import FilterSelected from "@/components/FilterSelected";
 import ClubBox from "@/components/ClubBox";
 import Loading from "@/components/Loading";
 import { useEffect, useState } from "react";
 import ClubBoxSkeleton from "@/components/ClubBoxSkeleton";
-import clubs from "@/app/_mocks_/data";
-import Image from "next/image";
+import ClubInterface from "@/interfaces/Club";
 
 export default function Home() {
+  const [clubs, setClubs] = useState<ClubInterface[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedClubType, setSelectedClubType] = useState("ทุกประเภท");
@@ -19,12 +17,26 @@ export default function Home() {
   const [filteredClubs, setFilteredClubs] = useState(clubs);
 
   useEffect(() => {
-    // Show skeleton for 2 seconds
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 2000);
+    }, 2000); // Show skeleton for 2 seconds
 
     return () => clearTimeout(timer);
+  }, []);
+
+  // Fetch club data from API
+  useEffect(() => {
+    fetch("/api/club")
+      .then((res) => res.json())
+      .then((data) => {
+        setClubs(data);
+        setFilteredClubs(data);
+        setIsLoading(false);
+      })
+      .catch(error => {
+        console.error("Error fetching clubs:", error);
+        setIsLoading(false);
+      });
   }, []);
 
   useEffect(() => {
