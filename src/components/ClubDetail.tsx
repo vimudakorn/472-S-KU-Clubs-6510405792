@@ -14,7 +14,7 @@ export default function ClubDetail({ club }: { club: ClubInterface | null }) {
 
                 <div className="space-y-6">
                     <div className="space-y-1">
-                        <p className="text-sm">Club ID</p>                    
+                        <p className="text-sm">Club ID</p>
                         {club ? (
                             <p className="text-2xl text-bold text-green-300">{club.id}</p>
                         ) : (
@@ -49,26 +49,34 @@ export default function ClubDetail({ club }: { club: ClubInterface | null }) {
                         )}
                     </div>
 
-                    {club?.clubPresident && (
-                        <div className="space-y-1">
-                            <p className="text-sm">ประธานชมรม</p>
+                    <div className="space-y-1">
+                        <p className="text-sm">ประธานชมรม</p>
+                        {club ? (
                             <p className="text-2xl text-bold text-green-300">{club.clubPresident}</p>
-                        </div>
-                    )}
+                        ) : (
+                            <Skeleton className="h-[40px] w-[300px] bg-green-800" />
+                        )}
+                    </div>
 
-                    {club?.advisor && (
-                        <div className="space-y-1">
-                            <p className="text-sm">ที่ปรึกษา</p>
+                    <div className="space-y-1">
+                        <p className="text-sm">ที่ปรึกษา</p>
+                        {club ? (
                             <p className="text-2xl text-bold text-green-300">{club.advisor}</p>
-                        </div>
-                    )}
+                        ) : (
+                            <Skeleton className="h-[40px] w-[300px] bg-green-800" />
+                        )}
+                    </div>
 
-                    {club?.aboutClub && (
-                        <div className="space-y-1">
-                            <p className="text-sm">รายละเอียดชมรม</p>
+
+                    <div className="space-y-1">
+                        <p className="text-sm">รายละเอียดชมรม</p>
+                        {club ? (
                             <p className="text-sm">{club.aboutClub}</p>
-                        </div>
-                    )}
+                        ) : (
+                            <Skeleton className="h-[60px] w-[350px] bg-green-800" />
+                        )}
+                    </div>
+
                 </div>
             </div>
         </aside>
