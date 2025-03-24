@@ -10,8 +10,7 @@ interface ActivityCardProps {
 
 // Update the function signature to include clubId
 export default function ActivityCard({ activity, clubId }: ActivityCardProps) {
-  // เพิ่ม console.log เพื่อตรวจสอบข้อมูลที่ได้รับ
-  console.log("Activity in card:", activity);
+  // Removed console.log statement
   
   return (
     <div className="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-all duration-300">

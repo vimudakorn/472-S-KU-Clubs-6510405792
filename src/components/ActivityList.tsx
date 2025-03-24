@@ -33,9 +33,7 @@ export default function ActivityList({ activities, status, clubId }: ActivityLis
           activityName: activity.activityName || activity.title || `กิจกรรม ${activity.id}`,
           aboutActivity: activity.aboutActivity || activity.description || `รายละเอียดกิจกรรมที่จัดขึ้นที่ ${activity.location} ในวันที่ ${activity.date} เวลา ${activity.time}`
         };
-        
-        console.log("Enhanced activity:", enhancedActivity);
-        
+                
         return (
           <ActivityCard key={activity.id} activity={enhancedActivity} clubId={clubId} />
         );
