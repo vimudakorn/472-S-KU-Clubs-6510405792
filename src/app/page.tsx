@@ -1,11 +1,12 @@
 "use client";
 import { Skeleton } from "@/components/skeleton/skeleton";
-import { Search } from "lucide-react";
+import { ArrowLeft, ArrowRight, Search } from "lucide-react";
 import FilterSelected from "@/components/FilterSelected";
 import ClubBox from "@/components/ClubBox";
 import Loading from "@/components/Loading";
 import { useEffect, useState } from "react";
 import ClubBoxSkeleton from "@/components/ClubBoxSkeleton";
+import Image from "next/image";
 import ClubInterface from "@/interfaces/Club";
 
 export default function Home() {
@@ -15,40 +16,26 @@ export default function Home() {
   const [selectedClubType, setSelectedClubType] = useState("ทุกประเภท");
   const [selectedCampus, setSelectedCampus] = useState("ทุกวิทยาเขต");
   const [filteredClubs, setFilteredClubs] = useState(clubs);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 2000); // Show skeleton for 2 seconds
-
-    return () => clearTimeout(timer);
-  }, []);
+  const [durringPage, setDurringPage] = useState(1);
+  const pageCount = Math.ceil(clubs.length / 6);
 
   // Fetch club data from API
   useEffect(() => {
-    fetch("/api/club")
+    const searchParams = new URLSearchParams();
+    searchParams.set("search", searchTerm);
+    searchParams.set("selectedClubType", selectedClubType);
+    searchParams.set("selectedCampus", selectedCampus);
+    fetch("/api/clubs?" + searchParams.toString())
       .then((res) => res.json())
       .then((data) => {
         setClubs(data);
         setFilteredClubs(data);
         setIsLoading(false);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error("Error fetching clubs:", error);
         setIsLoading(false);
       });
-  }, []);
-
-  useEffect(() => {
-    // Filter clubs based on search term, clubType, and campus
-    const results = clubs.filter((club) => {
-      const matchesSearch = club.clubName.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesClubType = selectedClubType === "ทุกประเภท" || club.clubType === selectedClubType;
-      const matchesCampus = selectedCampus === "ทุกวิทยาเขต" || club.campus === `วิทยาเขต${selectedCampus}`;
-      return matchesSearch && matchesClubType && matchesCampus;
-    });
-
-    setFilteredClubs(results);
   }, [searchTerm, selectedClubType, selectedCampus]);
 
   return (
@@ -58,7 +45,6 @@ export default function Home() {
           isLoading={isLoading}
           fallback={
             <>
-              <Skeleton className="h-[36px] w-[135px]" />
               <Skeleton className="h-10 w-full mt-4" />
               <Skeleton className="h-[24px] w-[60px] mt-3" />
               <Skeleton className="h-10 w-full rounded-none rounded-tr-lg rounded-tl-lg mt-3" />
@@ -86,7 +72,19 @@ export default function Home() {
           <div className="mt-3">
             <FilterSelected
               placeholder="ประเภทชมรม"
-              items={["ทุกประเภท", "เทคโนโลยี", "วิทยาศาสตร์", "ศิลปะศาสตร์"]}
+              items={[
+                "ทุกประเภท",
+                "ศิลปะและดนตรี",
+                "กีฬาและสุขภาพ",
+                "จิตอาสาและพัฒนาสังคม",
+                "ศิลปะและสื่อสาร",
+                "เทคโนโลยีและการพัฒนา",
+                "วิทยาศาสตร์และเทคโนโลยี",
+                "ภาษาและวรรณกรรม",
+                "การเรียนรู้และพัฒนา",
+                "สังคมและมนุษยศาสตร์",
+                "การพัฒนาบุคลิกภาพ",
+              ]}
               className="rounded-tr-lg rounded-tl-lg"
               onChange={setSelectedClubType}
             />
@@ -102,28 +100,66 @@ export default function Home() {
         </Loading>
       </div>
       {/* Club List */}
-      <div className="grid auto-rows-max mt-3 gap-3 md:grid-cols-2 w-full">
-        <Loading
-          isLoading={isLoading}
-          fallback={clubs.map((club) => (
-            <ClubBoxSkeleton key={club.id} />
-          ))}
-        >
-          {filteredClubs.length > 0 ? (
-            filteredClubs.map((club) => (
-              <ClubBox
-                key={club.id}
-                id={club.id}
-                clubType={club.clubType}
-                campus={club.campus}
-                clubName={club.clubName}
-              />
-            ))
-          ) : (
-            <p className="text-gray-500">ไม่พบชมรมที่ค้นหา</p>
-          )}
-        </Loading>
+      <div className="w-full">
+        <div className="grid auto-rows-max mt-3 gap-3 md:grid-cols-2 w-full">
+          <Loading
+            isLoading={isLoading}
+            fallback={Array.from({ length: 6 })
+              .fill("")
+              .map((_, i) => (
+                <ClubBoxSkeleton key={i} />
+              ))}
+          >
+            {filteredClubs.length > 0 ? (
+              filteredClubs
+                .slice((durringPage - 1) * 6, durringPage * 6)
+                .map((club) => (
+                  <ClubBox
+                    key={club.id}
+                    id={club.id}
+                    clubType={club.clubType}
+                    campus={club.campus}
+                    clubName={club.clubName}
+                  />
+                ))
+            ) : (
+              <p className="text-gray-500">ไม่พบชมรมที่ค้นหา</p>
+            )}
+          </Loading>
+        </div>
+        <div className="flex justify-between mt-4">
+          <Loading
+            isLoading={isLoading}
+            fallback={<Skeleton className="w-[90px] h-[24px]" />}
+          >
+            <button
+              className="flex text-sm justify-center items-center gap-2 disabled:text-gray-400"
+              disabled={durringPage === 1}
+              onClick={() => setDurringPage((durringPage - 1) % pageCount)}
+            >
+              <ArrowLeft />
+              <p>Previous</p>
+            </button>
+          </Loading>
+          <Loading
+            isLoading={isLoading}
+            fallback={<Skeleton className="w-[90px] h-[24px]" />}
+          >
+            <button
+              className="flex text-sm justify-center items-center gap-2 disabled:text-gray-400"
+              disabled={durringPage === pageCount}
+              onClick={() => setDurringPage(durringPage + 1)}
+            >
+              <p>Next</p>
+              <ArrowRight />
+            </button>
+          </Loading>
+        </div>
       </div>
     </div>
   );
+  0 - 6;
+  6 - 12;
+  12 - 18;
+  18 - 24;
 }
