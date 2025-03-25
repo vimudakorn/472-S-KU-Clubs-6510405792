@@ -63,8 +63,7 @@ export default function page() {
                 <div className="space-y-6">
                   <div className="space-y-1">
                     <p className="text-2xl text-bold text-green-300">
-                      ชมรมโปรhyiiiii
-                      5ด
+                      ชมรมโปรด
                     </p>
                   </div>
                 </div>
