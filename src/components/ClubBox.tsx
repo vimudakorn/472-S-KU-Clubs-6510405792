@@ -1,7 +1,7 @@
 "use client";
 import { Star } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface Props {
   id: string;
@@ -13,9 +13,26 @@ interface Props {
 export default function ClubBox({id, clubType, campus, clubName }: Props) {
   const [isFav, setIsFav] = useState(false);
   const router = useRouter();
+  const STORAGE_KEY = `favoriteClub-${id}`;
   
+  useEffect(() => {
+    const isFavorite = localStorage.getItem(STORAGE_KEY);
+    if (isFavorite) {
+      setIsFav(JSON.parse(isFavorite));
+    }
+  }, [isFav]);
+
   const handleNavigate = () => {
     router.push(`/club/${id}/activities`);
+  }
+
+  const favoriteClubHandler = () => {
+    setIsFav(!isFav);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(!isFav));
+    if (!isFav === false) {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+    window.location.reload();
   }
   
   return (
@@ -25,7 +42,7 @@ export default function ClubBox({id, clubType, campus, clubName }: Props) {
           <p data-testid="description" className="text-xs">#{clubType} #{campus}</p>
           <h5 data-testid="clubName" className="text-lg font-semibold">{clubName}</h5>
         </div>
-        <button onClick={() => setIsFav(!isFav)}>
+        <button onClick={favoriteClubHandler}>
           <Star
             className="transition-colors duration-300"
             fill={`${isFav ? "#eab308" : "#fff"}`}
