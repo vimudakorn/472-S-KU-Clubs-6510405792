@@ -1,4 +1,4 @@
-name: Develop workflow
+name: Develop Workflow
 on:
   push:
     branches: [ develop ]
@@ -27,7 +27,7 @@ jobs:
         retention-days: 30
   build:
     runs-on: ubuntu-latest
-
+    needs: test
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
